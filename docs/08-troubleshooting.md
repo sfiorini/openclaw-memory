@@ -8,6 +8,7 @@ Use a valid image tag from your existing deployment or build/provide one before 
 ## `memory-hybrid` does not initialize
 
 Check:
+
 - Plugin files exist in container path:
   - `/usr/lib/node_modules/openclaw/extensions/memory-hybrid`
 - `openclaw.json` has memory slot + entry
@@ -21,6 +22,7 @@ Install toolchain in image (python3, make, compiler), rebuild image, and retry i
 ## `openclaw hybrid-mem` commands not found
 
 Possible causes:
+
 - Plugin not loaded
 - Dependency install failed
 - Wrong CLI service/container

@@ -3,6 +3,7 @@
 ## Goal
 
 Add `memory-hybrid` to an existing OpenClaw Docker deployment with durable storage for:
+
 - Plugin code (extension folder)
 - Memory data (SQLite and LanceDB under OpenClaw config dir)
 
@@ -25,6 +26,7 @@ Add `memory-hybrid` to an existing OpenClaw Docker deployment with durable stora
 This guide assumes your existing compose has runtime and CLI services (for example `openclaw-gateway` and `openclaw-cli`).
 
 You will add one extra bind mount to both services:
+
 - Host: `${OPENCLAW_MEMORY_HYBRID_DIR}`
 - Container: `/usr/lib/node_modules/openclaw/extensions/memory-hybrid`
 

@@ -17,6 +17,7 @@ docker compose ps
 ```
 
 Expected:
+
 - Compose config renders without error
 - Core OpenClaw services are visible
 

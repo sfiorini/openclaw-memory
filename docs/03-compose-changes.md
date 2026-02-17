@@ -19,6 +19,7 @@ In your existing `docker-compose.yml`, add this volume to both runtime and CLI s
 ```
 
 Reference snippet:
+
 - `docs/snippets/compose-memory-hybrid-volumes.yml`
 
 ## Keep Existing Config/Data Mount
@@ -33,4 +34,5 @@ docker compose config | rg -n "memory-hybrid|openclaw-gateway|openclaw-cli"
 ```
 
 Expected:
+
 - Both services show the `memory-hybrid` mount target.

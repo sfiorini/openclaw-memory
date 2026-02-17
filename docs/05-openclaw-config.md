@@ -1,6 +1,7 @@
 # 05 - Configure OpenClaw
 
 Edit your existing OpenClaw config file:
+
 - `${OPENCLAW_CONFIG_DIR}/openclaw.json`
 
 ## Required Changes
@@ -15,7 +16,7 @@ Edit your existing OpenClaw config file:
 }
 ```
 
-2. Add plugin entry:
+1. Add plugin entry:
 
 ```json
 "memory-hybrid": {
@@ -32,6 +33,7 @@ Edit your existing OpenClaw config file:
 ```
 
 Reference snippet:
+
 - `docs/snippets/openclaw-json-memory-hybrid.json`
 
 ## API Key

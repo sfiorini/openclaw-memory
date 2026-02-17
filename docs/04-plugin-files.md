@@ -3,6 +3,7 @@
 ## Option A (Recommended): Use Files from This Repository
 
 This repo already includes the plugin source under:
+
 - `openclaw-data/memory-hybrid/`
 
 Copy/sync those files to your real `${OPENCLAW_MEMORY_HYBRID_DIR}`:

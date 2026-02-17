@@ -35,4 +35,5 @@ docker compose exec openclaw-cli openclaw hybrid-mem lookup user
 ```
 
 Expected:
+
 - Lookup still returns inserted fact after restart and recreate.
