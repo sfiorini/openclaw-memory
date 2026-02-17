@@ -1,0 +1,20 @@
+{
+  "plugins": {
+    "slots": {
+      "memory": "memory-hybrid"
+    },
+    "entries": {
+      "memory-hybrid": {
+        "enabled": true,
+        "config": {
+          "embedding": {
+            "apiKey": "${OPENAI_API_KEY}",
+            "model": "text-embedding-3-small"
+          },
+          "autoCapture": true,
+          "autoRecall": true
+        }
+      }
+    }
+  }
+}
