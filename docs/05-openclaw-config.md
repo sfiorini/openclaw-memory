@@ -6,28 +6,25 @@ Edit your existing OpenClaw config file:
 
 ## Required Changes
 
-1. Set memory slot:
+1. Set memory slot and plugin entry under `plugins`:
 
 ```json
 "plugins": {
   "slots": {
     "memory": "memory-hybrid"
-  }
-}
-```
-
-1. Add plugin entry:
-
-```json
-"memory-hybrid": {
-  "enabled": true,
-  "config": {
-    "embedding": {
-      "apiKey": "${OPENAI_API_KEY}",
-      "model": "text-embedding-3-small"
-    },
-    "autoCapture": true,
-    "autoRecall": true
+  },
+  "entries": {
+    "memory-hybrid": {
+      "enabled": true,
+      "config": {
+        "embedding": {
+          "apiKey": "${OPENAI_API_KEY}",
+          "model": "text-embedding-3-small"
+        },
+        "autoCapture": true,
+        "autoRecall": true
+      }
+    }
   }
 }
 ```

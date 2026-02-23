@@ -6,12 +6,20 @@ This repo already includes the plugin source under:
 
 - `openclaw-data/memory-hybrid/`
 
-Copy/sync those files to your real `${OPENCLAW_MEMORY_HYBRID_DIR}`:
+Copy/sync those files to:
+
+- `${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid`
 
 ```bash
-mkdir -p "${OPENCLAW_MEMORY_HYBRID_DIR}"
-rsync -av --delete openclaw-data/memory-hybrid/ "${OPENCLAW_MEMORY_HYBRID_DIR}/"
+mkdir -p "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid"
+rsync -av --delete openclaw-data/memory-hybrid/ "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/"
 ```
+
+This host directory is mounted into the container at:
+
+- `/home/node/.openclaw/extensions/memory-hybrid`
+
+If you re-run `rsync --delete`, plugin `node_modules` in that folder are removed and you must re-run dependency install from `docs/06-dependency-install.md`.
 
 ## Option B: Re-Extract from Scraped Article Source
 
@@ -19,26 +27,26 @@ rsync -av --delete openclaw-data/memory-hybrid/ "${OPENCLAW_MEMORY_HYBRID_DIR}/"
 curl -sL 'https://clawdboss.ai/api/posts/give-your-clawdbot-permanent-memory' > /tmp/clawdboss-post.json
 jq -r '.post.content' /tmp/clawdboss-post.json > /tmp/clawdboss-content.md
 
-mkdir -p "${OPENCLAW_MEMORY_HYBRID_DIR}"
+mkdir -p "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid"
 
 awk 'BEGIN{s=0} /^File 1 .*package\.json:/{s=1;next} /^File 2 .*openclaw\.plugin\.json:/{s=0} s{print}' /tmp/clawdboss-content.md \
-  | sed '/^$/d' > "${OPENCLAW_MEMORY_HYBRID_DIR}/package.json"
+  | sed '/^$/d' > "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/package.json"
 
 awk 'BEGIN{s=0} /^File 2 .*openclaw\.plugin\.json:/{s=1;next} /^File 3 .*config\.ts:/{s=0} s{print}' /tmp/clawdboss-content.md \
-  | sed '/^$/d' > "${OPENCLAW_MEMORY_HYBRID_DIR}/openclaw.plugin.json"
+  | sed '/^$/d' > "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/openclaw.plugin.json"
 
 awk 'BEGIN{sec=0;code=0} /^### config\.ts$/{sec=1;next} sec && /^```typescript$/{code=1;next} sec && code && /^```$/{exit} sec && code{print}' /tmp/clawdboss-content.md \
-  > "${OPENCLAW_MEMORY_HYBRID_DIR}/config.ts"
+  > "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/config.ts"
 
 awk 'BEGIN{sec=0;code=0} /^### index\.ts$/{sec=1;next} sec && /^```typescript$/{code=1;next} sec && code && /^```$/{exit} sec && code{print}' /tmp/clawdboss-content.md \
-  > "${OPENCLAW_MEMORY_HYBRID_DIR}/index.ts"
+  > "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/index.ts"
 ```
 
 ## Sanity Checks
 
 ```bash
-jq . "${OPENCLAW_MEMORY_HYBRID_DIR}/package.json" >/dev/null
-jq . "${OPENCLAW_MEMORY_HYBRID_DIR}/openclaw.plugin.json" >/dev/null
-[ -s "${OPENCLAW_MEMORY_HYBRID_DIR}/config.ts" ]
-[ -s "${OPENCLAW_MEMORY_HYBRID_DIR}/index.ts" ]
+jq . "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/package.json" >/dev/null
+jq . "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/openclaw.plugin.json" >/dev/null
+[ -s "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/config.ts" ]
+[ -s "${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid/index.ts" ]
 ```

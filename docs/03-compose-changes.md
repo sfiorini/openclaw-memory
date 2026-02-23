@@ -1,38 +1,25 @@
 # 03 - Compose Changes (Existing Installation)
 
-## Add Host Path Variable
+## No Additional Plugin Volume Needed
 
-In your existing `.env`:
+Do not add an extra plugin-specific bind mount when plugin files are placed under:
 
-```dotenv
-OPENCLAW_MEMORY_HYBRID_DIR=./openclaw-data/memory-hybrid
-```
-
-Use an absolute path if preferred.
-
-## Add Plugin Mount to Existing Services
-
-In your existing `docker-compose.yml`, add this volume to both runtime and CLI services:
-
-```yaml
-- ${OPENCLAW_MEMORY_HYBRID_DIR}:/usr/lib/node_modules/openclaw/extensions/memory-hybrid
-```
-
-Reference snippet:
-
-- `docs/snippets/compose-memory-hybrid-volumes.yml`
+- `${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid`
 
 ## Keep Existing Config/Data Mount
 
 Do not remove your existing config mount (typically `${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw`).
-That mount is where memory databases persist.
+That same mount provides:
+
+- memory databases (`/home/node/.openclaw/memory`)
+- plugin extensions (`/home/node/.openclaw/extensions/*`)
 
 ## Validate
 
 ```bash
-docker compose config | rg -n "memory-hybrid|openclaw-gateway|openclaw-cli"
+docker compose config | rg -n "/home/node/.openclaw|openclaw-gateway|openclaw-cli"
 ```
 
 Expected:
 
-- Both services show the `memory-hybrid` mount target.
+- Both services show the config mount target `/home/node/.openclaw`.

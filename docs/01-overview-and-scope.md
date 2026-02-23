@@ -9,11 +9,12 @@ Add `memory-hybrid` to an existing OpenClaw Docker deployment with durable stora
 
 ## In Scope
 
-- Compose volume changes for existing services
+- Compose config-mount verification for existing services
 - Plugin file placement and update workflow
 - OpenClaw config wiring
 - Dependency install (`better-sqlite3`, LanceDB, OpenAI SDK)
 - Runtime validation and persistence verification
+- Post-install seeding from existing `MEMORY.md` and daily memory files
 
 ## Out of Scope
 
@@ -24,10 +25,17 @@ Add `memory-hybrid` to an existing OpenClaw Docker deployment with durable stora
 ## Deployment Model
 
 This guide assumes your existing compose has runtime and CLI services (for example `openclaw-gateway` and `openclaw-cli`).
+For plugin CLI commands in this guide, use the gateway container with `./openclaw.mjs`.
 
-You will add one extra bind mount to both services:
+This guide assumes both services already mount your OpenClaw config dir:
 
-- Host: `${OPENCLAW_MEMORY_HYBRID_DIR}`
-- Container: `/usr/lib/node_modules/openclaw/extensions/memory-hybrid`
+- Host: `${OPENCLAW_CONFIG_DIR}`
+- Container: `/home/node/.openclaw`
 
-This makes plugin files survive container recreation.
+Place plugin files on the host at:
+
+- `${OPENCLAW_CONFIG_DIR}/extensions/memory-hybrid`
+
+They will be available in containers at:
+
+- `/home/node/.openclaw/extensions/memory-hybrid`

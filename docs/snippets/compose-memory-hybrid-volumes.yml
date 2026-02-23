@@ -1,8 +1,0 @@
-services:
-  openclaw-gateway:
-    volumes:
-      - ${OPENCLAW_MEMORY_HYBRID_DIR}:/usr/lib/node_modules/openclaw/extensions/memory-hybrid
-
-  openclaw-cli:
-    volumes:
-      - ${OPENCLAW_MEMORY_HYBRID_DIR}:/usr/lib/node_modules/openclaw/extensions/memory-hybrid

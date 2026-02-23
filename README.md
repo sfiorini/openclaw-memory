@@ -13,23 +13,31 @@ Use it to add the `memory-hybrid` plugin to an already running OpenClaw Docker s
 5. Configure OpenClaw in `docs/05-openclaw-config.md`
 6. Install dependencies in `docs/06-dependency-install.md`
 7. Validate and persistence-test with `docs/07-validation-and-persistence.md`
-8. Use `docs/08-troubleshooting.md` if anything fails
+8. Run post-install seeding flow in `docs/09-seed-from-memory.md`
+9. Use `docs/08-troubleshooting.md` if anything fails
 
 ## What This Repo Provides
 
 - `openclaw-data/memory-hybrid/`: plugin source files (`package.json`, `openclaw.plugin.json`, `config.ts`, `index.ts`)
 - `docs/`: implementation and operations guides for pre-existing installs
-- `docs/snippets/`: copy/paste snippets for compose and `openclaw.json`
+- `docs/snippets/`: copy/paste snippet for `openclaw.json`
 
 ## Important Assumptions
 
 - You already have OpenClaw running via Docker Compose.
 - You can edit the existing compose project and restart services.
 - You have an OpenAI API key for embeddings.
+- Your compose already mounts `${OPENCLAW_CONFIG_DIR}` to `/home/node/.openclaw` for gateway and CLI services.
 - Linux container path for plugin extensions is:
-  - `/usr/lib/node_modules/openclaw/extensions/memory-hybrid`
+  - `/home/node/.openclaw/extensions/memory-hybrid`
 
 ## Source Basis
+
+OpenClaw official docs:
+
+- `https://docs.openclaw.ai/plugins`
+- `https://docs.openclaw.ai/plugins/configuration`
+- `https://docs.openclaw.ai/install/docker`
 
 This implementation tracks the TLDR workflow from:
 

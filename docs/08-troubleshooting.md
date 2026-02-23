@@ -10,8 +10,8 @@ Use a valid image tag from your existing deployment or build/provide one before 
 Check:
 
 - Plugin files exist in container path:
-  - `/usr/lib/node_modules/openclaw/extensions/memory-hybrid`
-- `openclaw.json` has memory slot + entry
+  - `/home/node/.openclaw/extensions/memory-hybrid`
+- `openclaw.json` has `plugins.slots.memory = "memory-hybrid"` and `plugins.entries.memory-hybrid.enabled = true`
 - `OPENAI_API_KEY` is present in runtime env
 
 ## `better-sqlite3` build fails
@@ -19,15 +19,21 @@ Check:
 Your runtime image likely lacks native build deps.
 Install toolchain in image (python3, make, compiler), rebuild image, and retry install.
 
-## `openclaw hybrid-mem` commands not found
+## `hybrid-mem` commands not found
 
 Possible causes:
 
 - Plugin not loaded
 - Dependency install failed
-- Wrong CLI service/container
+- Wrong CLI invocation path for your compose setup
 
-Re-check plugin init logs and `npm install` output.
+Use the known-good invocation first:
+
+```bash
+docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem stats
+```
+
+If this works but `docker compose run --rm openclaw-cli hybrid-mem stats` fails, keep using the gateway `./openclaw.mjs` command path in this environment.
 
 ## Rollback
 
