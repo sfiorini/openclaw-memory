@@ -55,3 +55,26 @@ docker compose exec openclaw-gateway sh -lc 'cd /home/node/.openclaw && node see
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem stats
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem lookup user
 ```
+
+## Alternative: Use Example Script
+
+This repo includes an example seed script at `scripts/seed-hybrid.mjs`. You can adapt it for your setup:
+
+1. Copy the script to your OpenClaw config directory:
+   ```bash
+   cp scripts/seed-hybrid.mjs "${OPENCLAW_CONFIG_DIR}/seed-hybrid.mjs"
+   ```
+
+2. Review and customize for your `MEMORY.md` structure
+
+3. Run inside the container:
+   ```bash
+   docker compose exec openclaw-gateway sh -lc 'cd /home/node/.openclaw && node seed-hybrid.mjs'
+   ```
+
+The example script includes:
+- Markdown parsing with section/subsection awareness
+- Category detection (preference, fact, decision, entity, other)
+- Structured field extraction (entity/key/value patterns)
+- SQLite and LanceDB deduplication
+- Batch embedding via OpenAI text-embedding-3-small

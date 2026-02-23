@@ -14,11 +14,17 @@ Use it to add the `memory-hybrid` plugin to an already running OpenClaw Docker s
 6. Install dependencies in `docs/06-dependency-install.md`
 7. Validate and persistence-test with `docs/07-validation-and-persistence.md`
 8. Run post-install seeding flow in `docs/09-seed-from-memory.md`
-9. Use `docs/08-troubleshooting.md` if anything fails
+9. (Optional) Set up automated jobs in `docs/10-cron-jobs.md`
+10. Use `docs/08-troubleshooting.md` if anything fails
+
+## Reference
+
+- `docs/11-cli-reference.md` — Hybrid memory CLI commands
 
 ## What This Repo Provides
 
 - `openclaw-data/memory-hybrid/`: plugin source files (`package.json`, `openclaw.plugin.json`, `config.ts`, `index.ts`)
+- `scripts/seed-hybrid.mjs`: example seed script for importing existing memories
 - `docs/`: implementation and operations guides for pre-existing installs
 - `docs/snippets/`: copy/paste snippet for `openclaw.json`
 
