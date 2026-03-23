@@ -62,7 +62,8 @@ docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem extract-daily --d
 ```
 
 This command:
-- Scans `~/.openclaw/memory/YYYY-MM-DD.md` files
+- Scans workspace daily files in `~/.openclaw/workspace/memory/YYYY-MM-DD.md`
+- Falls back to legacy files in `~/.openclaw/memory/YYYY-MM-DD.md`
 - Parses each file for facts
 - Stores in SQLite with FTS5
 - Generates embeddings for LanceDB
