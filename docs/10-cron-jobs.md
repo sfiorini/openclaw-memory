@@ -53,8 +53,10 @@ Extracts memories from `MEMORY.md` and daily memory files into SQLite and LanceD
 
 **Payload command**:
 ```bash
-cd /app && ./openclaw.mjs hybrid-mem extract-daily --days 14
+cd /opt/homebrew/lib/node_modules/openclaw && ./openclaw.mjs hybrid-mem extract-daily --days 14
 ```
+
+On non-Homebrew installs, use the actual directory that contains `openclaw.mjs`.
 
 **Cron configuration**:
 ```json
@@ -68,7 +70,7 @@ cd /app && ./openclaw.mjs hybrid-mem extract-daily --days 14
   "sessionTarget": "isolated",
   "payload": {
     "kind": "agentTurn",
-    "message": "Run daily hybrid memory extraction from memory files and report outcome. Use exec to run: cd /app && ./openclaw.mjs hybrid-mem extract-daily --days 14. Summarize rows added/updated and any errors."
+    "message": "Run daily hybrid memory extraction from memory files and report outcome. Use exec to run: cd /opt/homebrew/lib/node_modules/openclaw && ./openclaw.mjs hybrid-mem extract-daily --days 14. Summarize rows added/updated and any errors."
   },
   "delivery": {
     "mode": "none"

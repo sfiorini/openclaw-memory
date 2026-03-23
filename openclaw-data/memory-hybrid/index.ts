@@ -1438,8 +1438,10 @@ const memoryHybridPlugin = {
             const fs = await import("node:fs");
             const path = await import("node:path");
             const { homedir: getHomedir } = await import("node:os");
-            const memoryDir = path.join(getHomedir(), ".openclaw", "memory");
             const daysBack = parseInt(opts.days);
+            const homeDir = getHomedir();
+            const workspaceMemoryDir = path.join(homeDir, ".openclaw", "workspace", "memory");
+            const legacyMemoryDir = path.join(homeDir, ".openclaw", "memory");
 
             let totalExtracted = 0;
             let totalStored = 0;
@@ -1448,14 +1450,18 @@ const memoryHybridPlugin = {
               const date = new Date();
               date.setDate(date.getDate() - d);
               const dateStr = date.toISOString().split("T")[0];
-              const filePath = path.join(memoryDir, `${dateStr}.md`);
+              const candidatePaths = [
+                path.join(workspaceMemoryDir, `${dateStr}.md`),
+                path.join(legacyMemoryDir, `${dateStr}.md`),
+              ];
+              const filePath = candidatePaths.find((candidate) => fs.existsSync(candidate));
 
-              if (!fs.existsSync(filePath)) continue;
+              if (!filePath) continue;
 
               const content = fs.readFileSync(filePath, "utf-8");
               const lines = content.split("\n").filter((l: string) => l.trim().length > 10);
 
-              console.log(`\nScanning ${dateStr} (${lines.length} lines)...`);
+              console.log(`\nScanning ${dateStr} from ${filePath} (${lines.length} lines)...`);
 
               for (const line of lines) {
                 const trimmed = line.replace(/^[-*#>\s]+/, "").trim();

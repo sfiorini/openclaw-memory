@@ -27,8 +27,10 @@ docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem stats
 ## Insert Deterministic Test Memory
 
 ```bash
-docker compose exec openclaw-gateway sh -lc 'mkdir -p /home/node/.openclaw/memory && printf -- "- My rollback-test preference is tmux\n" > /home/node/.openclaw/memory/$(date +%F).md && ./openclaw.mjs hybrid-mem extract-daily --days 1 && ./openclaw.mjs hybrid-mem lookup user'
+docker compose exec openclaw-gateway sh -lc 'mkdir -p /home/node/.openclaw/workspace/memory && printf -- "- My rollback-test preference is tmux\n" > /home/node/.openclaw/workspace/memory/$(date +%F).md && ./openclaw.mjs hybrid-mem extract-daily --days 1 && ./openclaw.mjs hybrid-mem lookup user'
 ```
+
+Legacy fallback also works from `/home/node/.openclaw/memory`, but workspace memory is the preferred location.
 
 ## Persistence Checks
 

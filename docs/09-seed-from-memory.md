@@ -28,7 +28,7 @@ Create a seed script at ~/.openclaw/seed-hybrid.mjs that:
    e. Store the vector in LanceDB
    f. Skip duplicates (exact text match for SQLite, >95% cosine similarity
       for LanceDB)
-4. Also scan any daily memory files in ~/.openclaw/memory/YYYY-MM-DD.md
+4. Also scan any daily memory files in ~/.openclaw/workspace/memory/YYYY-MM-DD.md (preferred) and legacy files in ~/.openclaw/memory/YYYY-MM-DD.md
 5. Read the OpenAI API key from openclaw.json at
    ~/.openclaw/openclaw.json (resolve ${OPENAI_API_KEY} from environment)
 6. Database paths:
