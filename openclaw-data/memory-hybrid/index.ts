@@ -16,8 +16,8 @@ import OpenAI from "openai";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import type { ClawdbotPluginApi } from "openclaw/plugin-sdk";
-import { stringEnum } from "openclaw/plugin-sdk";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
+import { stringEnum } from "openclaw/plugin-sdk/compat";
 
 import {
   MEMORY_CATEGORIES,
@@ -888,7 +888,7 @@ const memoryHybridPlugin = {
   kind: "memory" as const,
   configSchema: hybridConfigSchema,
 
-  register(api: ClawdbotPluginApi) {
+  register(api: OpenClawPluginApi) {
     const cfg = hybridConfigSchema.parse(api.pluginConfig);
     const resolvedLancePath = api.resolvePath(cfg.lanceDbPath);
     const resolvedSqlitePath = api.resolvePath(cfg.sqlitePath);
