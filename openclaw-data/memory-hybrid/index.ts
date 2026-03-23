@@ -16,8 +16,7 @@ import OpenAI from "openai";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { stringEnum } from "openclaw/plugin-sdk/compat";
+import { stringEnum, type OpenClawPluginApi } from "openclaw/plugin-sdk/core";
 
 import {
   MEMORY_CATEGORIES,
