@@ -21,6 +21,14 @@ This host directory is mounted into the container at:
 
 If you re-run `rsync --delete`, plugin `node_modules` in that folder are removed and you must re-run dependency install from `docs/06-dependency-install.md`.
 
+## Provenance Note
+
+On OpenClaw 2026.3.28+, copying files into `extensions/memory-hybrid/` is not enough if you want a clean `openclaw doctor` result. The plugin should also be represented under `plugins.installs` in `openclaw.json` so OpenClaw treats it as tracked installed code rather than an untracked local drop-in.
+
+Use the same runtime-visible path for both `sourcePath` and `installPath` when this repo is the deployed source:
+
+- `/home/node/.openclaw/extensions/memory-hybrid`
+
 ## Option B: Re-Extract from Scraped Article Source
 
 ```bash

@@ -2,6 +2,8 @@
 
 This document lists all available `hybrid-mem` CLI commands.
 
+`openclaw memory ...` is not covered here. That command family belongs to the bundled `memory-core` plugin and is unavailable unless you explicitly allowlist/load `memory-core` in addition to `memory-hybrid`.
+
 ## Usage
 
 All commands run through the gateway container:
@@ -34,7 +36,7 @@ Exact entity lookup in SQLite.
 # Lookup facts for a specific entity
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem lookup user
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem lookup Stef
-docker compose exec openclaw-gateway ./openclaw.mjs hybrid-maw lookup OpenClaw
+docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem lookup OpenClaw
 ```
 
 ### search

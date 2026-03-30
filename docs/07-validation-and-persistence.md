@@ -18,6 +18,21 @@ docker compose restart openclaw-gateway
 docker compose logs openclaw-gateway | rg "memory-hybrid: initialized"
 ```
 
+## Verify Normalized Install State
+
+```bash
+docker compose exec openclaw-gateway ./openclaw.mjs plugins inspect memory-hybrid --json
+docker compose exec openclaw-gateway ./openclaw.mjs doctor --non-interactive
+```
+
+Expected:
+
+- `plugins inspect` shows an `install` object for `memory-hybrid`
+- `usesLegacyBeforeAgentStart` is `false`
+- `compatibility` is empty for `memory-hybrid`
+- `doctor` no longer warns that `memory-hybrid` is untracked local code
+- `doctor` no longer warns that no active memory plugin is registered
+
 ## Baseline Memory Stats
 
 ```bash
@@ -45,6 +60,7 @@ docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem lookup user
 Expected:
 
 - Lookup still returns inserted fact after restart and recreate.
+- `plugins inspect memory-hybrid --json` still shows the install record after restart/recreate
 
 Next:
 

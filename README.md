@@ -4,6 +4,12 @@ This repository is documentation-first.
 
 Use it to add the `memory-hybrid` plugin to an already running OpenClaw Docker setup, with persistence across container restart/recreate.
 
+This repo now reflects the normalized OpenClaw 2026.3.28+ path:
+- `memory-hybrid` registers its own typed memory runtime
+- auto-recall uses `before_prompt_build`, not legacy `before_agent_start`
+- the plugin should be recorded under `plugins.installs` so `openclaw doctor` treats it as tracked installed code
+- `hybrid-mem` is the supported CLI for this repo's workflow unless you separately allowlist the bundled `memory-core` plugin
+
 ## Start Here
 
 1. Read `docs/01-overview-and-scope.md`

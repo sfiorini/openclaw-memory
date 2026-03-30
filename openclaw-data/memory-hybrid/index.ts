@@ -55,6 +55,18 @@ type SearchResult = {
   backend: "sqlite" | "lancedb";
 };
 
+type MemoryRuntimeSearchResult = {
+  path: string;
+  startLine: number;
+  endLine: number;
+  score: number;
+  snippet: string;
+  source: string;
+};
+
+const MEMORY_RUNTIME_PATH_RE =
+  /^memory-hybrid:\/\/(sqlite|lancedb)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
 // ============================================================================
 // SQLite + FTS5 Backend
 // ============================================================================
@@ -368,6 +380,36 @@ class FactsDB {
     return !!row;
   }
 
+  getById(id: string): MemoryEntry | null {
+    const nowSec = Math.floor(Date.now() / 1000);
+    const row = this.db
+      .prepare(
+        `SELECT * FROM facts
+         WHERE id = ?
+           AND (expires_at IS NULL OR expires_at > ?)
+         LIMIT 1`,
+      )
+      .get(id, nowSec) as Record<string, unknown> | undefined;
+
+    if (!row) return null;
+
+    return {
+      id: row.id as string,
+      text: row.text as string,
+      category: row.category as MemoryCategory,
+      importance: row.importance as number,
+      entity: (row.entity as string) || null,
+      key: (row.key as string) || null,
+      value: (row.value as string) || null,
+      source: row.source as string,
+      createdAt: row.created_at as number,
+      decayClass: (row.decay_class as DecayClass) || "stable",
+      expiresAt: (row.expires_at as number) || null,
+      lastConfirmedAt: (row.last_confirmed_at as number) || 0,
+      confidence: (row.confidence as number) || 1.0,
+    };
+  }
+
   count(): number {
     const row = this.db
       .prepare(`SELECT COUNT(*) as cnt FROM facts`)
@@ -627,6 +669,34 @@ class VectorDB {
     return true;
   }
 
+  async getById(id: string): Promise<MemoryEntry | null> {
+    await this.ensureInitialized();
+    const results = await this.table!
+      .search()
+      .where(`id = '${id}'`)
+      .limit(1)
+      .toArray();
+
+    if (results.length === 0) return null;
+
+    const row = results[0] as Record<string, unknown>;
+    return {
+      id: row.id as string,
+      text: row.text as string,
+      category: row.category as MemoryCategory,
+      importance: row.importance as number,
+      entity: null,
+      key: null,
+      value: null,
+      source: "conversation",
+      createdAt: row.createdAt as number,
+      decayClass: "stable",
+      expiresAt: null,
+      lastConfirmedAt: Math.floor(((row.createdAt as number) || Date.now()) / 1000),
+      confidence: 1.0,
+    };
+  }
+
   async count(): Promise<number> {
     await this.ensureInitialized();
     return this.table!.countRows();
@@ -687,6 +757,42 @@ function mergeResults(
 
   merged.sort((a, b) => b.score - a.score);
   return merged.slice(0, limit);
+}
+
+function buildMemoryRuntimePath(result: SearchResult): string {
+  return `memory-hybrid://${result.backend}/${result.entry.id}`;
+}
+
+function parseMemoryRuntimePath(path: string): {
+  backend: "sqlite" | "lancedb";
+  id: string;
+} | null {
+  const match = MEMORY_RUNTIME_PATH_RE.exec(path.trim());
+  if (!match) return null;
+  return {
+    backend: match[1].toLowerCase() as "sqlite" | "lancedb",
+    id: match[2],
+  };
+}
+
+function sliceMemoryText(text: string, from?: number, lines?: number): string {
+  if (from === undefined && lines === undefined) return text;
+  const allLines = text.split("\n");
+  const start = Math.max(1, from ?? 1);
+  const count = Math.max(1, lines ?? allLines.length);
+  return allLines.slice(start - 1, start - 1 + count).join("\n");
+}
+
+function toMemoryRuntimeSearchResult(result: SearchResult): MemoryRuntimeSearchResult {
+  const lineCount = Math.max(1, result.entry.text.split("\n").length);
+  return {
+    path: buildMemoryRuntimePath(result),
+    startLine: 1,
+    endLine: lineCount,
+    score: result.score,
+    snippet: result.entry.text,
+    source: result.backend,
+  };
 }
 
 // ============================================================================
@@ -902,6 +1008,130 @@ const memoryHybridPlugin = {
     api.logger.info(
       `memory-hybrid: registered (sqlite: ${resolvedSqlitePath}, lance: ${resolvedLancePath})`,
     );
+
+    const memoryRuntime: Parameters<OpenClawPluginApi["registerMemoryRuntime"]>[0] = {
+      async getMemorySearchManager() {
+        return {
+          manager: {
+            async search(
+              query: string,
+              opts?: { maxResults?: number; minScore?: number },
+            ) {
+              const maxResults = Math.max(1, Math.floor(opts?.maxResults ?? 5));
+              const minScore = opts?.minScore ?? 0;
+
+              const sqliteResults = factsDb.search(query, maxResults);
+              let lanceResults: SearchResult[] = [];
+
+              try {
+                const vector = await embeddings.embed(query);
+                lanceResults = await vectorDb.search(vector, maxResults, minScore);
+              } catch (err) {
+                api.logger.warn(`memory-hybrid: runtime vector search failed: ${String(err)}`);
+              }
+
+              return mergeResults(sqliteResults, lanceResults, maxResults)
+                .filter((result) => result.score >= minScore)
+                .map(toMemoryRuntimeSearchResult);
+            },
+            async readFile(params: {
+              relPath?: string;
+              path?: string;
+              from?: number;
+              lines?: number;
+            }) {
+              const requestedPath = (params.relPath ?? params.path ?? "").trim();
+              if (!requestedPath) throw new Error("path required");
+
+              const parsed = parseMemoryRuntimePath(requestedPath);
+              if (!parsed) {
+                return { text: "", path: requestedPath };
+              }
+
+              const entry =
+                parsed.backend === "sqlite"
+                  ? factsDb.getById(parsed.id)
+                  : await vectorDb.getById(parsed.id);
+
+              if (!entry) {
+                return { text: "", path: requestedPath };
+              }
+
+              return {
+                text: sliceMemoryText(entry.text, params.from, params.lines),
+                path: requestedPath,
+              };
+            },
+            status() {
+              const sqliteCount = factsDb.count();
+              return {
+                backend: "builtin",
+                provider: "memory-hybrid",
+                model: cfg.embedding.model,
+                requestedProvider: "memory-hybrid",
+                files: sqliteCount,
+                chunks: sqliteCount,
+                dirty: false,
+                workspaceDir: api.workspaceDir,
+                dbPath: resolvedSqlitePath,
+                sources: ["memory-hybrid"],
+                sourceCounts: {
+                  "memory-hybrid": sqliteCount,
+                },
+                vector: {
+                  enabled: true,
+                  available: true,
+                },
+                batch: {
+                  enabled: false,
+                  failures: 0,
+                  limit: 0,
+                  wait: false,
+                  concurrency: 0,
+                  pollIntervalMs: 0,
+                  timeoutMs: 0,
+                },
+                custom: {
+                  searchMode: "hybrid",
+                  sqlitePath: resolvedSqlitePath,
+                  lancePath: resolvedLancePath,
+                },
+              };
+            },
+            async sync() {},
+            async probeEmbeddingAvailability() {
+              try {
+                await embeddings.embed("memory-hybrid healthcheck");
+                return { ok: true };
+              } catch (err) {
+                return {
+                  ok: false,
+                  error: err instanceof Error ? err.message : String(err),
+                };
+              }
+            },
+            async probeVectorAvailability() {
+              try {
+                await vectorDb.count();
+                return true;
+              } catch {
+                return false;
+              }
+            },
+            async close() {},
+          },
+        };
+      },
+      resolveMemoryBackendConfig() {
+        return {
+          backend: "qmd",
+          qmd: {},
+        };
+      },
+      async closeAllMemorySearchManagers() {},
+    };
+
+    api.registerMemoryRuntime(memoryRuntime);
 
     // ========================================================================
     // Tools
@@ -1560,7 +1790,7 @@ const memoryHybridPlugin = {
     // ========================================================================
 
     if (cfg.autoRecall) {
-      api.on("before_agent_start", async (event) => {
+      api.on("before_prompt_build", async (event) => {
         if (!event.prompt || event.prompt.length < 5) return;
 
         try {

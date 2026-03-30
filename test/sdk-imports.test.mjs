@@ -19,3 +19,24 @@ test('memory-hybrid uses split OpenClaw SDK imports', () => {
 test('memory-hybrid declares OpenClaw as a runtime dependency', () => {
   assert.equal(typeof pkg.dependencies?.openclaw, 'string', 'plugin package must declare an openclaw runtime dependency so extension imports resolve outside the global install tree');
 });
+
+test('memory-hybrid registers the typed memory runtime', () => {
+  assert.match(
+    source,
+    /\.registerMemoryRuntime\s*\(/,
+    'memory plugin must register a typed memory runtime so OpenClaw can activate it as the current memory backend',
+  );
+});
+
+test('memory-hybrid avoids the legacy before_agent_start recall hook', () => {
+  assert.equal(
+    source.includes('before_agent_start'),
+    false,
+    'memory recall should use before_prompt_build instead of the legacy before_agent_start hook',
+  );
+  assert.match(
+    source,
+    /\.on\("before_prompt_build",/,
+    'memory recall hook should register on before_prompt_build',
+  );
+});

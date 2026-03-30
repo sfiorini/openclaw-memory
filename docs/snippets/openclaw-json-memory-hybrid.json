@@ -1,5 +1,13 @@
 {
   "plugins": {
+    "installs": {
+      "memory-hybrid": {
+        "source": "path",
+        "sourcePath": "/home/node/.openclaw/extensions/memory-hybrid",
+        "installPath": "/home/node/.openclaw/extensions/memory-hybrid",
+        "version": "2026.1.24"
+      }
+    },
     "slots": {
       "memory": "memory-hybrid"
     },
