@@ -991,7 +991,6 @@ const memoryHybridPlugin = {
   description:
     "Two-tier memory: SQLite+FTS5 for structured facts, LanceDB for semantic search",
   kind: "memory" as const,
-  configSchema: hybridConfigSchema,
 
   register(api: OpenClawPluginApi) {
     const cfg = hybridConfigSchema.parse(api.pluginConfig);

@@ -32,6 +32,13 @@ Expected:
 - `compatibility` is empty for `memory-hybrid`
 - `doctor` no longer warns that `memory-hybrid` is untracked local code
 - `doctor` no longer warns that no active memory plugin is registered
+- `doctor` does not emit `memory-hybrid invalid config` warnings
+
+Also verify the plugin-local SDK version matches the host release family:
+
+```bash
+docker compose exec openclaw-gateway node -e 'const fs=require("fs"); const p="/home/node/.openclaw/extensions/memory-hybrid/node_modules/openclaw/package.json"; console.log(JSON.parse(fs.readFileSync(p,"utf8")).version)'
+```
 
 ## Baseline Memory Stats
 

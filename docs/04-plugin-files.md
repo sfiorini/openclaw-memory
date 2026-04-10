@@ -23,7 +23,9 @@ If you re-run `rsync --delete`, plugin `node_modules` in that folder are removed
 
 ## Provenance Note
 
-On OpenClaw 2026.3.28+, copying files into `extensions/memory-hybrid/` is not enough if you want a clean `openclaw doctor` result. The plugin should also be represented under `plugins.installs` in `openclaw.json` so OpenClaw treats it as tracked installed code rather than an untracked local drop-in.
+On OpenClaw 2026.4.9+, copying files into `extensions/memory-hybrid/` is not enough if you want a clean `openclaw doctor` result. The plugin should also be represented under `plugins.installs` in `openclaw.json` so OpenClaw treats it as tracked installed code rather than an untracked local drop-in.
+
+The plugin metadata should stay permissive enough for metadata-only introspection with empty config. Runtime config enforcement still belongs in `index.ts`.
 
 Use the same runtime-visible path for both `sourcePath` and `installPath` when this repo is the deployed source:
 

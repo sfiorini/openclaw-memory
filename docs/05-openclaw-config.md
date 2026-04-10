@@ -39,6 +39,8 @@ Edit your existing OpenClaw config file:
 
 `plugins.installs.memory-hybrid` is what pins install provenance for doctor/status. Keep the paths container-visible because OpenClaw evaluates them inside the gateway container.
 
+Keep the plugin-local `openclaw` dependency in `extensions/memory-hybrid/package.json` aligned with the host OpenClaw release family after upgrades. That compatibility check is separate from the `plugins.installs.memory-hybrid.version` provenance field shown above.
+
 Reference snippet:
 
 - `docs/snippets/openclaw-json-memory-hybrid.json`

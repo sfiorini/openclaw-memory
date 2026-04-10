@@ -52,7 +52,6 @@
       "sqlitePath": { "type": "string" },
       "autoCapture": { "type": "boolean" },
       "autoRecall": { "type": "boolean" }
-    },
-    "required": ["embedding"]
+    }
   }
 }
