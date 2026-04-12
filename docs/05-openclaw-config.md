@@ -26,8 +26,10 @@ Edit your existing OpenClaw config file:
       "enabled": true,
       "config": {
         "embedding": {
-          "apiKey": "${OPENAI_API_KEY}",
-          "model": "text-embedding-3-small"
+          "provider": "ollama",
+          "model": "nomic-embed-text",
+          "baseUrl": "http://host.docker.internal:11434/v1",
+          "dimensions": 768
         },
         "autoCapture": true,
         "autoRecall": true
@@ -45,10 +47,20 @@ Reference snippet:
 
 - `docs/snippets/openclaw-json-memory-hybrid.json`
 
-## API Key
+## Local Embeddings
 
-Set `OPENAI_API_KEY` in your compose env source (for example `.env`).
-Do not commit the real key.
+No OpenAI API key is required for embeddings in this configuration.
+
+Run Ollama with the selected embedding model available:
+
+```bash
+ollama pull nomic-embed-text:latest
+curl -fsS http://localhost:11434/api/tags
+```
+
+Set `embedding.baseUrl` to the URL reachable from the OpenClaw gateway runtime. For Docker Desktop on macOS, `http://host.docker.internal:11434/v1` usually reaches Ollama on the host. For a host install or same-network runtime, use `http://localhost:11434/v1`.
+
+If you change the model or dimensions, rebuild LanceDB vectors before using semantic recall. Do not mix old 1536-dimensional OpenAI vectors with local 768-dimensional `nomic-embed-text` vectors.
 
 ## CLI Note
 

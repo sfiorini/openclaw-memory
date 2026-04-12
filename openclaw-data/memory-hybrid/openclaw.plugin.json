@@ -2,16 +2,25 @@
   "id": "memory-hybrid",
   "kind": "memory",
   "uiHints": {
-    "embedding.apiKey": {
-      "label": "OpenAI API Key",
-      "sensitive": true,
-      "placeholder": "sk-proj-...",
-      "help": "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})"
+    "embedding.provider": {
+      "label": "Embedding Provider",
+      "placeholder": "ollama",
+      "help": "Embedding provider. Use ollama for local keyless embeddings."
     },
     "embedding.model": {
       "label": "Embedding Model",
-      "placeholder": "text-embedding-3-small",
-      "help": "OpenAI embedding model to use"
+      "placeholder": "nomic-embed-text",
+      "help": "Embedding model to use."
+    },
+    "embedding.baseUrl": {
+      "label": "Embedding Base URL",
+      "placeholder": "http://localhost:11434/v1",
+      "help": "Local Ollama embeddings endpoint base URL."
+    },
+    "embedding.dimensions": {
+      "label": "Embedding Dimensions",
+      "placeholder": "768",
+      "help": "Vector dimension for the selected embedding model."
     },
     "lanceDbPath": {
       "label": "LanceDB Path",
@@ -40,13 +49,17 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "apiKey": { "type": "string" },
-          "model": {
+          "provider": {
             "type": "string",
-            "enum": ["text-embedding-3-small", "text-embedding-3-large"]
+            "enum": ["ollama"],
+            "default": "ollama"
+          },
+          "baseUrl": { "type": "string" },
+          "dimensions": { "type": "number" },
+          "model": {
+            "type": "string"
           }
-        },
-        "required": ["apiKey"]
+        }
       },
       "lanceDbPath": { "type": "string" },
       "sqlitePath": { "type": "string" },

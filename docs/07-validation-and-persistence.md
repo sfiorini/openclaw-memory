@@ -15,8 +15,10 @@ docker compose restart openclaw-gateway
 ## Verify Plugin Initialization
 
 ```bash
-docker compose logs openclaw-gateway | rg "memory-hybrid: initialized"
+docker compose logs openclaw-gateway | rg "memory-hybrid: registered|memory-hybrid: initialized"
 ```
+
+The registration log should include the active local embedding tuple, for example `ollama/nomic-embed-text/768`.
 
 ## Verify Normalized Install State
 

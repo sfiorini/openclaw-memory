@@ -12,7 +12,6 @@
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import Database from "better-sqlite3";
-import OpenAI from "openai";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -708,20 +707,49 @@ class VectorDB {
 // ============================================================================
 
 class Embeddings {
-  private client: OpenAI;
-  constructor(
-    apiKey: string,
-    private model: string,
-  ) {
-    this.client = new OpenAI({ apiKey });
-  }
+  constructor(private embeddingConfig: HybridMemoryConfig["embedding"]) {}
 
   async embed(text: string): Promise<number[]> {
-    const resp = await this.client.embeddings.create({
-      model: this.model,
-      input: text,
-    });
-    return resp.data[0].embedding;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+    };
+
+    try {
+      const resp = await fetch(`${this.embeddingConfig.baseUrl}/embeddings`, {
+        method: "POST",
+        headers,
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: this.embeddingConfig.model,
+          input: text,
+        }),
+      });
+      if (!resp.ok) {
+        const body = await resp.text().catch(() => "");
+        throw new Error(
+          `Embedding request failed (${this.embeddingConfig.provider}, ${resp.status}): ${body.slice(0, 300)}`,
+        );
+      }
+
+      const data = (await resp.json()) as {
+        data?: Array<{ embedding?: unknown }>;
+        embedding?: unknown;
+      };
+      const embedding = data.data?.[0]?.embedding ?? data.embedding;
+      if (!Array.isArray(embedding)) {
+        throw new Error("Embedding response did not contain a vector");
+      }
+      if (embedding.length !== this.embeddingConfig.dimensions) {
+        throw new Error(
+          `Embedding dimension mismatch for ${this.embeddingConfig.model}: expected ${this.embeddingConfig.dimensions}, got ${embedding.length}`,
+        );
+      }
+      return embedding as number[];
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 }
 
@@ -996,16 +1024,16 @@ const memoryHybridPlugin = {
     const cfg = hybridConfigSchema.parse(api.pluginConfig);
     const resolvedLancePath = api.resolvePath(cfg.lanceDbPath);
     const resolvedSqlitePath = api.resolvePath(cfg.sqlitePath);
-    const vectorDim = vectorDimsForModel(cfg.embedding.model);
+    const vectorDim = vectorDimsForModel(cfg.embedding.model, cfg.embedding.dimensions);
 
     const factsDb = new FactsDB(resolvedSqlitePath);
     const vectorDb = new VectorDB(resolvedLancePath, vectorDim);
-    const embeddings = new Embeddings(cfg.embedding.apiKey, cfg.embedding.model);
+    const embeddings = new Embeddings(cfg.embedding);
 
     let pruneTimer: ReturnType<typeof setInterval> | null = null;
 
     api.logger.info(
-      `memory-hybrid: registered (sqlite: ${resolvedSqlitePath}, lance: ${resolvedLancePath})`,
+      `memory-hybrid: registered (sqlite: ${resolvedSqlitePath}, lance: ${resolvedLancePath}, embedding: ${cfg.embedding.provider}/${cfg.embedding.model}/${vectorDim})`,
     );
 
     const memoryRuntime: Parameters<OpenClawPluginApi["registerMemoryRuntime"]>[0] = {

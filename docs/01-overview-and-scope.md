@@ -12,7 +12,8 @@ Add `memory-hybrid` to an existing OpenClaw Docker deployment with durable stora
 - Compose config-mount verification for existing services
 - Plugin file placement and update workflow
 - OpenClaw config wiring
-- Dependency install (`better-sqlite3`, LanceDB, OpenAI SDK)
+- Dependency install (`better-sqlite3`, LanceDB, OpenClaw SDK)
+- Local embedding runtime wiring through Ollama's OpenAI-compatible `/v1/embeddings` endpoint
 - Runtime validation and persistence verification
 - Post-install seeding from existing `MEMORY.md` and daily memory files
 

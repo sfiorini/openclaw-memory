@@ -4,7 +4,6 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
-import OpenAI from 'openai';
 import * as lancedb from '@lancedb/lancedb';
 
 const HOME = os.homedir();
@@ -24,7 +23,12 @@ const DAILY_MEMORY_DIR_CANDIDATES = [
   path.join(OPENCLAW_DIR, 'workspace', 'memory'),
 ];
 
-const EMBEDDING_MODEL = 'text-embedding-3-small';
+const DEFAULT_EMBEDDING = {
+  provider: 'ollama',
+  model: 'nomic-embed-text',
+  baseUrl: 'http://localhost:11434/v1',
+  dimensions: 768,
+};
 const COSINE_THRESHOLD = 0.95;
 
 function pickExistingPath(candidates) {
@@ -44,16 +48,55 @@ function resolveEnvTemplate(value) {
   return process.env[envName] || '';
 }
 
-function loadOpenAIApiKey() {
+function loadEmbeddingConfig() {
   if (!fs.existsSync(OPENCLAW_JSON)) {
     throw new Error(`openclaw.json not found at ${OPENCLAW_JSON}`);
   }
   const cfg = readJson(OPENCLAW_JSON);
-  const configured = cfg?.plugins?.entries?.['memory-hybrid']?.config?.embedding?.apiKey;
-  const resolved = resolveEnvTemplate(configured);
-  if (resolved) return resolved;
-  if (process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY;
-  throw new Error('OpenAI API key not found. Expected plugins.entries.memory-hybrid.config.embedding.apiKey or OPENAI_API_KEY env var.');
+  const embedding = cfg?.plugins?.entries?.['memory-hybrid']?.config?.embedding || {};
+  const provider = embedding.provider || DEFAULT_EMBEDDING.provider;
+  const model = embedding.model || DEFAULT_EMBEDDING.model;
+  const baseUrl = (embedding.baseUrl || DEFAULT_EMBEDDING.baseUrl).replace(/\/+$/, '');
+  const dimensions = Number(embedding.dimensions || DEFAULT_EMBEDDING.dimensions);
+
+  if (provider !== 'ollama') {
+    throw new Error(`Unsupported embedding provider for local seed: ${provider}`);
+  }
+  if (!Number.isInteger(dimensions) || dimensions <= 0) {
+    throw new Error(`Invalid embedding dimensions for ${model}: ${embedding.dimensions}`);
+  }
+  return { provider, model, baseUrl, dimensions };
+}
+
+async function createEmbeddings(config, input) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60_000);
+  const headers = { 'content-type': 'application/json' };
+
+  try {
+    const resp = await fetch(`${config.baseUrl}/embeddings`, {
+      method: 'POST',
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({ model: config.model, input }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '');
+      throw new Error(`Embedding request failed (${config.provider}, ${resp.status}): ${body.slice(0, 300)}`);
+    }
+    const data = await resp.json();
+    const rows = data?.data || (Array.isArray(data?.embedding) ? [{ embedding: data.embedding }] : []);
+    const vectors = rows.map((row) => row.embedding);
+    for (const vector of vectors) {
+      if (!Array.isArray(vector)) throw new Error('Embedding response did not contain a vector.');
+      if (vector.length !== config.dimensions) {
+        throw new Error(`Embedding dimension mismatch for ${config.model}: expected ${config.dimensions}, got ${vector.length}`);
+      }
+    }
+    return vectors;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function ensureSqliteSchema(db) {
@@ -266,7 +309,7 @@ function cosineSimilarity(a, b) {
   return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
 
-async function getOrCreateLanceTable(db, sampleVectorDim = 1536) {
+async function getOrCreateLanceTable(db, sampleVectorDim = DEFAULT_EMBEDDING.dimensions) {
   try {
     return await db.openTable('memories');
   } catch {
@@ -294,8 +337,7 @@ async function main() {
   const dailyDirs = DAILY_MEMORY_DIR_CANDIDATES.filter((d) => fs.existsSync(d));
   const dailyFiles = listDailyMemoryFiles(dailyDirs);
 
-  const apiKey = loadOpenAIApiKey();
-  const openai = new OpenAI({ apiKey });
+  const embeddingConfig = loadEmbeddingConfig();
 
   fs.mkdirSync(path.dirname(SQLITE_PATH), { recursive: true });
   fs.mkdirSync(LANCEDB_PATH, { recursive: true });
@@ -304,7 +346,7 @@ async function main() {
   ensureSqliteSchema(sqlite);
 
   const ldb = await lancedb.connect(LANCEDB_PATH);
-  const table = await getOrCreateLanceTable(ldb, 1536);
+  const table = await getOrCreateLanceTable(ldb, embeddingConfig.dimensions);
 
   const allFacts = [];
   const memoryText = fs.readFileSync(memoryPath, 'utf8');
@@ -400,14 +442,11 @@ async function main() {
     const batch = needsEmbedding.slice(i, i + BATCH_SIZE);
     const inputs = batch.map((x) => x.fact.text);
 
-    const emb = await openai.embeddings.create({
-      model: EMBEDDING_MODEL,
-      input: inputs,
-    });
+    const embeddings = await createEmbeddings(embeddingConfig, inputs);
 
     for (let j = 0; j < batch.length; j++) {
       const { factId, fact } = batch[j];
-      const vector = emb.data?.[j]?.embedding;
+      const vector = embeddings[j];
       if (!Array.isArray(vector)) continue;
 
       let nearDuplicate = false;

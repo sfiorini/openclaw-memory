@@ -26,7 +26,7 @@ Because plugin files are stored under `${OPENCLAW_CONFIG_DIR}/extensions/memory-
 ## Version Check
 
 ```bash
-docker compose run --rm openclaw-gateway sh -lc 'cd /home/node/.openclaw/extensions/memory-hybrid && npm ls @sinclair/typebox better-sqlite3 @lancedb/lancedb openai'
+docker compose run --rm openclaw-gateway sh -lc 'cd /home/node/.openclaw/extensions/memory-hybrid && npm ls @sinclair/typebox better-sqlite3 @lancedb/lancedb openclaw'
 ```
 
 ## Optional: Persistent Image Build

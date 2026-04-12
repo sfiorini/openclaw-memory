@@ -1,2 +1,4 @@
 /ai_plan
 .worktrees/
+node_modules/
+**/node_modules/

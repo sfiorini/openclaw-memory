@@ -4,13 +4,14 @@ This repository is documentation-first.
 
 Use it to add the `memory-hybrid` plugin to an already running OpenClaw Docker setup, with persistence across container restart/recreate.
 
-This repo now reflects the normalized OpenClaw 2026.4.9+ path:
+This repo now reflects the normalized OpenClaw 2026.4.10+ path:
 - `memory-hybrid` registers its own typed memory runtime
 - auto-recall uses `before_prompt_build`, not legacy `before_agent_start`
 - the plugin should be recorded under `plugins.installs` so `openclaw doctor` treats it as tracked installed code
 - `hybrid-mem` is the supported CLI for this repo's workflow unless you separately allowlist the bundled `memory-core` plugin
 - the plugin-local `openclaw` dependency should stay aligned with the host OpenClaw release family
 - `openclaw.plugin.json` should allow empty config during metadata-only plugin introspection; runtime enforcement still happens in `index.ts`
+- embeddings are local by default through Ollama's OpenAI-compatible `/v1/embeddings` endpoint, using `nomic-embed-text` at 768 dimensions
 
 ## Start Here
 
@@ -40,7 +41,8 @@ This repo now reflects the normalized OpenClaw 2026.4.9+ path:
 
 - You already have OpenClaw running via Docker Compose.
 - You can edit the existing compose project and restart services.
-- You have an OpenAI API key for embeddings.
+- You have an Ollama runtime reachable from the OpenClaw gateway runtime.
+- You have pulled the local embedding model, for example `ollama pull nomic-embed-text:latest`.
 - Your compose already mounts `${OPENCLAW_CONFIG_DIR}` to `/home/node/.openclaw` for gateway and CLI services.
 - Linux container path for plugin extensions is:
   - `/home/node/.openclaw/extensions/memory-hybrid`
