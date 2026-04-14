@@ -7,7 +7,7 @@
     "@lancedb/lancedb": "^0.23.0",
     "@sinclair/typebox": "0.34.47",
     "better-sqlite3": "^11.0.0",
-    "openclaw": "^2026.4.10"
+    "openclaw": "^2026.4.12"
   },
   "openclaw": {
     "extensions": [

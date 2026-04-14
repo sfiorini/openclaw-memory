@@ -1013,6 +1013,10 @@ function detectCategory(text: string): MemoryCategory {
 // Plugin Definition
 // ============================================================================
 
+const registrationLogKeys =
+  ((globalThis as typeof globalThis & { __memoryHybridRegistrationLogKeys?: Set<string> })
+    .__memoryHybridRegistrationLogKeys ??= new Set<string>());
+
 const memoryHybridPlugin = {
   id: "memory-hybrid",
   name: "Memory (Hybrid: SQLite + LanceDB)",
@@ -1032,9 +1036,13 @@ const memoryHybridPlugin = {
 
     let pruneTimer: ReturnType<typeof setInterval> | null = null;
 
-    api.logger.info(
-      `memory-hybrid: registered (sqlite: ${resolvedSqlitePath}, lance: ${resolvedLancePath}, embedding: ${cfg.embedding.provider}/${cfg.embedding.model}/${vectorDim})`,
-    );
+    const registrationLogKey = `${resolvedSqlitePath}\0${resolvedLancePath}\0${cfg.embedding.provider}\0${cfg.embedding.model}\0${vectorDim}`;
+    if (!registrationLogKeys.has(registrationLogKey)) {
+      registrationLogKeys.add(registrationLogKey);
+      api.logger.info(
+        `memory-hybrid: registered (sqlite: ${resolvedSqlitePath}, lance: ${resolvedLancePath}, embedding: ${cfg.embedding.provider}/${cfg.embedding.model}/${vectorDim})`,
+      );
+    }
 
     const memoryRuntime: Parameters<OpenClawPluginApi["registerMemoryRuntime"]>[0] = {
       async getMemorySearchManager() {
