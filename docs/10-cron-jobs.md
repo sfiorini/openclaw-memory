@@ -1,13 +1,16 @@
 # 10 - Automated Memory Jobs (Optional)
 
-After completing the core installation, you may want to automate memory extraction and snapshot capture.
+After completing the core installation, you may want to automate memory capture.
+
+For Stefano's current native-memory cutover, only the `memory-store-snapshot` job remains enabled. The old `hybrid-mem-extract-daily` job is disabled because `memory-hybrid` is no longer the active runtime memory provider.
 
 ## Overview
 
-Two cron jobs are recommended:
+For native `memory-core`, one cron job is recommended:
 
-1. **memory-store-snapshot** - Periodically stores high-signal facts from conversation context
-2. **hybrid-mem-extract-daily** - Daily extraction from memory files with a lookback window
+1. **memory-store-snapshot** - Periodically stores high-signal facts from conversation context through native `memory_store`
+
+For legacy `memory-hybrid` installs, a second extraction job can be used, but do not enable it on a native-memory setup unless you are rolling back to `memory-hybrid`.
 
 ## Why Automate?
 
@@ -45,11 +48,13 @@ Review recent conversation context and store only high-signal, durable facts usi
 }
 ```
 
-## Job 2: Hybrid Memory Extraction
+## Legacy Job 2: Hybrid Memory Extraction
 
 Extracts memories from `MEMORY.md` and daily memory files into SQLite and LanceDB.
 
-**Recommended schedule**: Daily at midnight (your timezone)
+Status for Stefano's current install: disabled after native `memory-core` verification.
+
+**Recommended schedule for legacy hybrid runtime only**: Daily at midnight (your timezone)
 
 **Payload command**:
 ```bash
@@ -99,6 +104,21 @@ docker compose exec openclaw-gateway ./openclaw.mjs cron list
 # See OpenClaw docs for cron management
 ```
 
+## Current OpenClaw CLI Checks
+
+On the host install, list current jobs with:
+
+```bash
+openclaw cron list --all --json
+```
+
+Expected after the native-memory cutover:
+
+- `memory-store-snapshot-every-30m`: enabled
+- `hybrid-mem-extract-daily-midnight-cst`: disabled
+
+The hybrid job is disabled rather than deleted during the initial soak window so rollback can re-enable it without reconstructing the payload.
+
 ## Testing Jobs Manually
 
 Before relying on automation, test each job:
@@ -109,6 +129,13 @@ docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem extract-daily --d
 
 # Check memory stats
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem stats
+```
+
+For native memory:
+
+```bash
+openclaw memory status --deep
+openclaw memory search --query "timezone preference"
 ```
 
 ## Adjusting the Lookback Window
@@ -137,3 +164,4 @@ Cron jobs are stored in the OpenClaw database and persist across container resta
 
 - Run validation in `docs/07-validation-and-persistence.md`
 - Seed initial data in `docs/09-seed-from-memory.md`
+- If migrating to native memory, use `docs/12-native-memory-migration.md`

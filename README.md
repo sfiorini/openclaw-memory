@@ -14,6 +14,21 @@ This repo now reflects the OpenClaw 2026.4.15 migration decision:
 - QMD is not the default backend for this install because the trial had lower recall than builtin
 - Active Memory and Dreaming remain disabled by default
 
+## Current Runtime Status
+
+`memory-hybrid` is compatibility-only for Stefano's current OpenClaw install. It is not current as the runtime memory provider, and it should not be re-enabled unless rolling back.
+
+The current runtime memory provider is OpenClaw native `memory-core` using the builtin backend.
+
+Use this repo for:
+
+- maintaining the historical hybrid plugin code
+- exporting old `facts.db` data into native OpenClaw memory files
+- rollback documentation
+- future upgrade notes
+
+Do not use this repo to reintroduce the old `hybrid-mem extract-daily` cron job unless the runtime has intentionally been rolled back to `memory-hybrid`.
+
 The legacy plugin path remains documented for rollback or separate installs:
 
 - `memory-hybrid` registers its own typed memory runtime

@@ -1,16 +1,32 @@
 # 11 - Hybrid Memory CLI Reference
 
-This document lists all available `hybrid-mem` CLI commands.
+This document lists all available `hybrid-mem` CLI commands for legacy/compatibility use.
 
-`openclaw memory ...` is not covered here. That command family belongs to the bundled `memory-core` plugin and is unavailable unless you explicitly allowlist/load `memory-core` in addition to `memory-hybrid`.
+For Stefano's current install, `memory-hybrid` is no longer active at runtime. Native OpenClaw memory is exposed through `openclaw memory ...` with `memory-core` as the memory slot owner.
+
+Use this document when:
+
+- rolling back to `memory-hybrid`
+- inspecting the old SQLite/LanceDB data
+- maintaining a separate legacy hybrid install
+
+Use `docs/12-native-memory-migration.md` for the native runtime commands.
 
 ## Usage
 
-All commands run through the gateway container:
+Legacy Docker commands run through the gateway container:
 
 ```bash
 docker compose exec openclaw-gateway ./openclaw.mjs hybrid-mem <command> [options]
 ```
+
+On a local host install where the legacy plugin is still active, the equivalent shape is:
+
+```bash
+openclaw hybrid-mem <command> [options]
+```
+
+If `memory-hybrid` has been disabled or removed from `plugins.entries`, these commands are expected not to be available through the active gateway.
 
 ## Commands
 
@@ -125,7 +141,24 @@ cp "${OPENCLAW_CONFIG_DIR}/memory/facts.db" "${OPENCLAW_CONFIG_DIR}/memory/facts
 
 If commands fail with "plugin not loaded":
 
-1. Check plugin files exist in `/home/node/.openclaw/extensions/memory-hybrid/`
-2. Check `openclaw.json` has `plugins.slots.memory = "memory-hybrid"`
-3. Restart the gateway: `docker compose restart openclaw-gateway`
-4. Check logs: `docker compose logs openclaw-gateway | grep memory-hybrid`
+1. Confirm you actually intend to run legacy `memory-hybrid`; native `memory-core` installs should not load this plugin.
+2. Check plugin files exist in `/home/node/.openclaw/extensions/memory-hybrid/`
+3. Check `openclaw.json` has `plugins.slots.memory = "memory-hybrid"` for a legacy runtime, or restore the M1 backup before rollback testing
+4. Restart the gateway: `docker compose restart openclaw-gateway`
+5. Check logs: `docker compose logs openclaw-gateway | grep memory-hybrid`
+
+For native memory checks, use:
+
+```bash
+openclaw memory status --deep
+openclaw memory index --force
+openclaw memory search --query "timezone preference"
+```
+
+Expected native runtime shape:
+
+- `plugins.slots.memory = "memory-core"`
+- `memory.backend = "builtin"`
+- `plugins.entries.memory-core.enabled = true`
+- no `plugins.entries.memory-hybrid` entry
+- no `plugins.entries.active-memory` entry unless a separate Active Memory trial is being run

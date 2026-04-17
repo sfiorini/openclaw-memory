@@ -23,6 +23,17 @@ Evidence from the 2026-04-16 migration trial:
 
 Remaining difference: native memory returns document chunks. It does not preserve `memory-hybrid lookup` as a first-class entity/key database query. If exact entity/key lookup remains important, keep the exported JSONL/manifest or a read-only compatibility helper.
 
+Final cutover decision for Stefano's current install:
+
+- Keep `plugins.slots.memory = "memory-core"`.
+- Keep `memory.backend = "builtin"`.
+- Keep `plugins.entries.memory-core.enabled = true`.
+- Remove `plugins.entries.memory-hybrid` from the active config after backup/rollback evidence is recorded.
+- Remove `plugins.entries.active-memory` from the active config unless a future channel-visible trial proves it should be enabled.
+- Keep QMD disabled as the default backend because the trial had 9 zero-hit queries out of 22 and no latency improvement over builtin.
+- Keep Dreaming disabled unless separately selected later.
+- Disable the obsolete `hybrid-mem-extract-daily-midnight-cst` cron job after native memory search is verified.
+
 ## Export Command
 
 From this repo:
@@ -143,3 +154,18 @@ openclaw gateway status --json
 ```
 
 Do not delete `facts.db*` or `lancedb/` during the migration.
+
+## Monitoring And Cleanup
+
+During the initial soak window:
+
+- keep the M1 full backup
+- keep `~/.openclaw/extensions/memory-hybrid` on disk
+- keep the disabled hybrid cron job for easy rollback
+- monitor `openclaw doctor`, `openclaw plugins doctor`, `openclaw memory status --deep`, and representative searches
+
+After the native setup survives the monitoring window:
+
+- delete the disabled `hybrid-mem-extract-daily-midnight-cst` cron job if rollback is no longer needed
+- archive or remove old hybrid migration exports if disk space matters
+- keep the repository migration docs and exporter tests for future upgrades

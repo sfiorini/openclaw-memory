@@ -93,11 +93,18 @@ test('exports hybrid facts to JSONL, bounded Markdown, and manifest', () => {
 
   const workspaceFiles = fs.readdirSync(workspaceMemoryDir).filter((name) => name.startsWith('hybrid-import-'));
   assert.ok(workspaceFiles.length >= 4);
-  const sampleMarkdown = fs.readFileSync(path.join(workspaceMemoryDir, workspaceFiles[0]), 'utf8');
+  const sampleMarkdown = fs.readFileSync(path.join(workspaceMemoryDir, workspaceFiles.find((name) => name.includes('preference'))), 'utf8');
   assert.match(sampleMarkdown, /^# Hybrid Memory Import - /);
-  assert.match(sampleMarkdown, /<!-- hybrid:id=/);
-  assert.match(sampleMarkdown, /category=/);
-  assert.match(sampleMarkdown, /decay=/);
+  assert.match(sampleMarkdown, /<!-- hybrid:id=pref-1/);
+  assert.match(sampleMarkdown, /category=preference/);
+  assert.match(sampleMarkdown, /entity=Stef/);
+  assert.match(sampleMarkdown, /key=communication/);
+  assert.match(sampleMarkdown, /source=test/);
+  assert.match(sampleMarkdown, /importance=0.95/);
+  assert.match(sampleMarkdown, /decay=permanent/);
+  assert.match(sampleMarkdown, /last_confirmed_at=1770000000100/);
+  assert.match(sampleMarkdown, /confidence=1/);
+  assert.match(sampleMarkdown, /created_at=1770000000000/);
 });
 
 test('help documents every supported flag', () => {
