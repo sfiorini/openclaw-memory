@@ -157,14 +157,14 @@ Do not delete `facts.db*` or `lancedb/` during the migration.
 
 ## Monitoring And Cleanup
 
-During the initial soak window:
+During the initial soak window, use at least 7 normal operating days before deleting rollback conveniences:
 
 - keep the M1 full backup
 - keep `~/.openclaw/extensions/memory-hybrid` on disk
 - keep the disabled hybrid cron job for easy rollback
 - monitor `openclaw doctor`, `openclaw plugins doctor`, `openclaw memory status --deep`, and representative searches
 
-After the native setup survives the monitoring window:
+After the native setup survives at least 7 normal operating days:
 
 - delete the disabled `hybrid-mem-extract-daily-midnight-cst` cron job if rollback is no longer needed
 - archive or remove old hybrid migration exports if disk space matters

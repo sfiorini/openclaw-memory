@@ -1,4 +1,4 @@
-# 11 - Hybrid Memory CLI Reference
+# 11 - Legacy Hybrid Memory CLI Reference
 
 This document lists all available `hybrid-mem` CLI commands for legacy/compatibility use.
 

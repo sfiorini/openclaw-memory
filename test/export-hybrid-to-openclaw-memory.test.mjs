@@ -93,7 +93,9 @@ test('exports hybrid facts to JSONL, bounded Markdown, and manifest', () => {
 
   const workspaceFiles = fs.readdirSync(workspaceMemoryDir).filter((name) => name.startsWith('hybrid-import-'));
   assert.ok(workspaceFiles.length >= 4);
-  const sampleMarkdown = fs.readFileSync(path.join(workspaceMemoryDir, workspaceFiles.find((name) => name.includes('preference'))), 'utf8');
+  const preferenceFile = workspaceFiles.find((name) => name.includes('preference'));
+  assert.ok(preferenceFile, `expected a preference export file in: ${workspaceFiles.join(', ')}`);
+  const sampleMarkdown = fs.readFileSync(path.join(workspaceMemoryDir, preferenceFile), 'utf8');
   assert.match(sampleMarkdown, /^# Hybrid Memory Import - /);
   assert.match(sampleMarkdown, /<!-- hybrid:id=pref-1/);
   assert.match(sampleMarkdown, /category=preference/);
