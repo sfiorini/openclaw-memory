@@ -1,0 +1,134 @@
+[
+  {
+    "id": "pref-timezone",
+    "category": "preference",
+    "query": "timezone preference",
+    "expectedIntent": "Recall the user's canonical timezone preference without exposing unrelated personal details."
+  },
+  {
+    "id": "pref-communication-style",
+    "category": "preference",
+    "query": "communication style concise direct engineering updates",
+    "expectedIntent": "Find communication-style preferences relevant to assistant responses."
+  },
+  {
+    "id": "pref-model-reasoning",
+    "category": "preference",
+    "query": "preferred OpenClaw model reasoning high",
+    "expectedIntent": "Recall preferences about OpenClaw model/reasoning configuration."
+  },
+  {
+    "id": "pref-vpn-market",
+    "category": "preference",
+    "query": "flight finder market country vpn preference",
+    "expectedIntent": "Find preferences and constraints around market-country flight searches and VPN usage."
+  },
+  {
+    "id": "entity-openclaw",
+    "category": "entity",
+    "query": "OpenClaw gateway install path launch agent",
+    "expectedIntent": "Retrieve operational facts about the local OpenClaw install."
+  },
+  {
+    "id": "entity-memory-hybrid",
+    "category": "entity",
+    "query": "memory-hybrid extension facts database",
+    "expectedIntent": "Find facts about the memory-hybrid extension and storage layout."
+  },
+  {
+    "id": "entity-flight-finder",
+    "category": "entity",
+    "query": "flight finder skill report email PDF",
+    "expectedIntent": "Find operational facts about the flight-finder skill."
+  },
+  {
+    "id": "entity-property-assessor",
+    "category": "entity",
+    "query": "property assessor WhatsApp asks for email PDF",
+    "expectedIntent": "Find facts about the property-assessor workflow pattern."
+  },
+  {
+    "id": "decision-memory-modernization",
+    "category": "decision",
+    "query": "memory modernization replace memory-hybrid with native memory-core",
+    "expectedIntent": "Locate prior decisions or rationale about native memory migration."
+  },
+  {
+    "id": "decision-openclaw-updates",
+    "category": "decision",
+    "query": "OpenClaw updates manual no auto update runbook",
+    "expectedIntent": "Find decisions about OpenClaw update policy and runbook maintenance."
+  },
+  {
+    "id": "decision-image-generation",
+    "category": "decision",
+    "query": "image generation provider fal gemini nano banana fallback",
+    "expectedIntent": "Find image/video generation provider decisions."
+  },
+  {
+    "id": "decision-acp",
+    "category": "decision",
+    "query": "ACP Codex Claude Code orchestration one-shot",
+    "expectedIntent": "Find decisions about ACP coding-agent orchestration."
+  },
+  {
+    "id": "ops-update-runbook",
+    "category": "operational",
+    "query": "openclaw update runbook operations path",
+    "expectedIntent": "Retrieve operational memory about the update runbook location and maintenance."
+  },
+  {
+    "id": "ops-tailscale-vpn",
+    "category": "operational",
+    "query": "NordVPN Tailscale DNS order connect disconnect",
+    "expectedIntent": "Find operational notes on VPN/Tailscale interaction."
+  },
+  {
+    "id": "ops-cron-memory",
+    "category": "operational",
+    "query": "hybrid memory cron extract daily path",
+    "expectedIntent": "Find facts about memory-related cron jobs and correct paths."
+  },
+  {
+    "id": "ops-whatsapp-long-workflows",
+    "category": "operational",
+    "query": "WhatsApp long workflow silent stop timeout",
+    "expectedIntent": "Find operational notes about channel reliability and long workflows."
+  },
+  {
+    "id": "exact-openclaw-json",
+    "category": "exact-identifier",
+    "query": "/Users/stefano/.openclaw/openclaw.json",
+    "expectedIntent": "Verify exact-path recall for the live OpenClaw config."
+  },
+  {
+    "id": "exact-memory-repo",
+    "category": "exact-identifier",
+    "query": "/Users/stefano/.openclaw/workspace/projects/openclaw-memory",
+    "expectedIntent": "Verify exact-path recall for the memory project repository."
+  },
+  {
+    "id": "recent-flight-report",
+    "category": "recent",
+    "query": "DFW BLQ flight report latest run",
+    "expectedIntent": "Find recent operational notes about the flight-report workflow."
+  },
+  {
+    "id": "recent-openclaw-version",
+    "category": "recent",
+    "query": "current OpenClaw version upgrade latest installed",
+    "expectedIntent": "Find recent version/upgrade state without guessing."
+  },
+  {
+    "id": "recent-nordvpn-helper",
+    "category": "recent",
+    "query": "NordVPN WireGuard helper root owned hardened",
+    "expectedIntent": "Find recent operational notes about the NordVPN helper."
+  },
+  {
+    "id": "recent-image-controlui",
+    "category": "recent",
+    "query": "ControlUI image generation attachment display patch",
+    "expectedIntent": "Find recent notes about image attachment rendering across channels."
+  }
+]
